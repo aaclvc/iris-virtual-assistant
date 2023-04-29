@@ -52,9 +52,11 @@ For install enter the following commands:
 
 Add the file ".env" into the directory of the project and enter the following string with the API key and the port on which you want to run the app.
 
-	OPENAI_API_KEY = YOUR_API_KEY
-	PORT = YOUR_PORT
-    ENV = Dev
+	OPENAI_API_KEY=[YOUR_API_KEY]
+	ORGANIZATION=[YOUR_ORGANIZATION]
+    PORT=[YOUR_PORT]
+    ENV=Dev
+
 
 To start the server navigate to the directory and enter the following command:
 

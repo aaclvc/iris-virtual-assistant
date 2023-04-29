@@ -21,4 +21,5 @@ app.use('/api/device',device)
 
 const port = process.env.PORT || 3000;
 app.listen(port,() => console.log(`Listenting on port ${port}...`));
-console.log(process.env.OPENAI_API_KEY)
+console.log("OpenAI Key: "+ process.env.OPENAI_API_KEY);
+console.log("OpenAI Organization: " + process.env.ORGANIZATION);

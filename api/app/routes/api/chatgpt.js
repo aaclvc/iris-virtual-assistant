@@ -12,7 +12,7 @@ router.get('/',  async (req,res) => {
 
 
     const configuration = new Configuration({
-        organization: "org-GMdCDnj15FhwhA2TySpMrUUT",
+        organization: process.env.ORGANIZATION,
         apiKey: process.env.OPENAI_API_KEY,
     });
 
@@ -53,7 +53,7 @@ router.post('/', async (req,res) => {
     console.log(result.value)
     
     const configuration = new Configuration({
-        organization: "org-GMdCDnj15FhwhA2TySpMrUUT",
+        organization: process.env.ORGANIZATION,
         apiKey: process.env.OPENAI_API_KEY,
     });
 

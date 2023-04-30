@@ -1,0 +1,14 @@
+version: '3.4'
+
+services:
+  nodejsws1:
+    image: kaiser0815/nodejs_api_test:arm64.v1
+    environment:
+      ENV: Prod
+      PORT: 1235
+      OPENAI_API_KEY: [YOUR_KEY]
+      ORGANIZATION: [YOUR_ORGANIZATION]
+    expose:
+      - 1235
+    ports:
+      - 1235:1235

@@ -15,9 +15,11 @@ app.use(cors());
 
 const chatgpt = require('./routes/api/chatgpt');
 const device = require('./routes/api/device');
+const ocr = require('./routes/api/ocr');
 
 app.use('/api/chatgpt',chatgpt)
 app.use('/api/device',device)
+app.use('/api/ocr',ocr)
 
 const port = process.env.PORT || 3000;
 app.listen(port,() => console.log(`Listenting on port ${port}...`));

@@ -79,7 +79,7 @@ namespace Speechly.SLUClient
         //Our Keyword Recognizer
         KeyWordRecognizer recognizer = new KeyWordRecognizer("hello iris");
         AssistantState currentState = AssistantState.ListeningKeyword;
-
+        bool firstRun = true;
         Coroutine runStateHandler = null;
 
 
@@ -97,12 +97,17 @@ namespace Speechly.SLUClient
                         {
                             Debug.Log("KEY WORD RECOGNIZED!!!");
                             currentState = AssistantState.HandleKeyword;
+                            firstRun = false;
+                            speechlyClient.Stop();
+                            speechlyClient.StopStream();
                         }
                     break;
 
                     case AssistantState.ListeningRequest:
                         //TODO: request verarbeiten, json erstellen, request senden
                         currentState = AssistantState.HandleRequest;
+                        speechlyClient.Stop();
+                        
                         break;
 
                 }
@@ -189,41 +194,54 @@ namespace Speechly.SLUClient
             switch (currentState)
             {
                 case AssistantState.ListeningKeyword:
-                    if (!speechlyClient.IsActive) speechlyClient.Start();
+                    if (!speechlyClient.IsActive && !firstRun)
+                    {
+                        Debug.Log("listening keyword");
+                        speechlyClient.Start();
+                        yield return new WaitForSeconds(0.1f);
+                    }
                     break;
 
                 case AssistantState.HandleKeyword:
-                    speechlyClient.Stop();
+                    if (speechlyClient.IsActive) speechlyClient.Stop();
                     //TODO: play animation, sound //TODO: methode aufrufen
-
+                    Debug.Log("handle Keyword");
                     currentState = AssistantState.Greeting;
-
+                    yield return new WaitForSeconds(1f);
                     break;
 
                 case AssistantState.Greeting:
                     //TODO: Iris sagt hallo und fragt nach
-
+                    Debug.Log("greeting");
 
                     //TODO: sobald die sprachausgabe endet, state wechseln
                     currentState = AssistantState.ListeningRequest;
-                        break;
+                    yield return new WaitForSeconds(1f);
+                    break;
 
                 case AssistantState.ListeningRequest:
-                    if (!speechlyClient.IsActive) speechlyClient.Start();
-
+                    if (!speechlyClient.IsActive)
+                    {
+                        Debug.Log("listening request");
+                        yield return new WaitForSeconds(0.1f);
+                        speechlyClient.Start();
+                    }
                     break;
 
                 case AssistantState.HandleRequest:
                     //TODO: play animation, sound
+                    Debug.Log("HandleRequest");
                     speechlyClient.Stop();
+                    yield return new WaitForSeconds(1f);
                     currentState = AssistantState.Answering;
                     break;
 
                 case AssistantState.Answering:
                     //TODO: Iris gibt die antwort
-
+                    Debug.Log("Answering");
                     //TODO: sobald die sprachausgabe endet, state wechseln
                     currentState = AssistantState.ListeningKeyword;
+                    yield return new WaitForSeconds(0.1f);
 
                     break;
             }

@@ -11,6 +11,19 @@ using TMPro;
 namespace Speechly.SLUClient
 {
 
+    public enum AssistantState
+    {
+        Idle,
+        Listening,
+        ListeningKeyword,
+        ListeningRequest,
+        HandleKeyword,
+        HandleRequest,
+        Greeting,
+        Answering
+
+    }
+
     public partial class MicToSpeechly : MonoBehaviour
     {
         /// Set to false if you're calling AdjustAudioProcessor manually
@@ -24,11 +37,12 @@ namespace Speechly.SLUClient
         }
 
         private static MicToSpeechly _instance;
-
+        //Singleton
         public static MicToSpeechly Instance
         {
             get { return _instance; }
         }
+
         [Tooltip("Speechly environment to connect to")]
         public SpeechlyEnvironment SpeechlyEnv = SpeechlyEnvironment.Production;
 
@@ -62,7 +76,12 @@ namespace Speechly.SLUClient
         IDecoder decoder = null;
         public TMP_Text TranscriptText;
 
-        KeywordRecognizer recognizer = new KeywordRecognizer("hello iris");
+        //Our Keyword Recognizer
+        KeyWordRecognizer recognizer = new KeyWordRecognizer("hello iris");
+        AssistantState currentState = AssistantState.ListeningKeyword;
+
+        Coroutine runStateHandler = null;
+
 
         void Start()
         {
@@ -71,17 +90,36 @@ namespace Speechly.SLUClient
             {
                 Debug.Log(segment.ToString());
 
-                if(recognizer.ContainsKeyword(segment.ToString())==true)
+                switch (currentState)
                 {
-                    Debug.Log("KEY WORD RECOGNIZED!!!");
+                    case AssistantState.ListeningKeyword:
+                        if (recognizer.ContainsKeyWord(segment.ToString()) == true)
+                        {
+                            Debug.Log("KEY WORD RECOGNIZED!!!");
+                            currentState = AssistantState.HandleKeyword;
+                        }
+                    break;
+
+                    case AssistantState.ListeningRequest:
+                        //TODO: request verarbeiten, json erstellen, request senden
+                        currentState = AssistantState.HandleRequest;
+                        break;
+
                 }
                 
+                
+
+
                 TranscriptText.text = segment.ToString(
                   (intent) => "",
                   (words, entityType) => $"<color=#15e8b5>{words}<color=#ffffff>",
                   "."
                 );
             };
+
+            //TODO: Add OnStop
+            
+            //TODO: Add OnStopStream
         }
 
         private void Awake()
@@ -112,6 +150,7 @@ namespace Speechly.SLUClient
             // Microphone.GetDeviceCaps(CaptureDeviceName, out minFreq, out maxFreq);
             // Debug.Log($"minFreq {minFreq} maxFreq {maxFreq}");
 
+
             int capturedAudioBufferMillis = 500;
             int micBufferMillis = AudioProcessorSettings.FrameMillis * AudioProcessorSettings.HistoryFrames + capturedAudioBufferMillis;
             int micBufferSecs = (micBufferMillis / 1000) + 1;
@@ -130,6 +169,9 @@ namespace Speechly.SLUClient
 
             wasVADEnabled = this.AudioProcessorSettings.VADControlsListening;
             runSpeechlyCoroutine = StartCoroutine(RunSpeechly());
+
+
+            runStateHandler = StartCoroutine(StateHandler());
         }
 
         async void OnDisable()
@@ -137,6 +179,56 @@ namespace Speechly.SLUClient
             if (runSpeechlyCoroutine != null) StopCoroutine(runSpeechlyCoroutine);
             runSpeechlyCoroutine = null;
             await SpeechlyClient.Shutdown();
+        }
+
+        private IEnumerator StateHandler()
+        {
+           
+            SpeechlyClient speechlyClient = MicToSpeechly.Instance.SpeechlyClient;
+
+            switch (currentState)
+            {
+                case AssistantState.ListeningKeyword:
+                    if (!speechlyClient.IsActive) speechlyClient.Start();
+                    break;
+
+                case AssistantState.HandleKeyword:
+                    speechlyClient.Stop();
+                    //TODO: play animation, sound //TODO: methode aufrufen
+
+                    currentState = AssistantState.Greeting;
+
+                    break;
+
+                case AssistantState.Greeting:
+                    //TODO: Iris sagt hallo und fragt nach
+
+
+                    //TODO: sobald die sprachausgabe endet, state wechseln
+                    currentState = AssistantState.ListeningRequest;
+                        break;
+
+                case AssistantState.ListeningRequest:
+                    if (!speechlyClient.IsActive) speechlyClient.Start();
+
+                    break;
+
+                case AssistantState.HandleRequest:
+                    //TODO: play animation, sound
+                    speechlyClient.Stop();
+                    currentState = AssistantState.Answering;
+                    break;
+
+                case AssistantState.Answering:
+                    //TODO: Iris gibt die antwort
+
+                    //TODO: sobald die sprachausgabe endet, state wechseln
+                    currentState = AssistantState.ListeningKeyword;
+
+                    break;
+            }
+
+            yield return null;
         }
 
         private IEnumerator RunSpeechly()

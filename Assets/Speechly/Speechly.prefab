@@ -54,7 +54,7 @@ MonoBehaviour:
     InternalSampleRate: 16000
     FrameMillis: 30
     HistoryFrames: 8
-    VADControlsListening: 0
+    VADControlsListening: 1
     VADSettings:
       SignalToNoiseDb: 3
       NoiseGateDb: -24
@@ -72,3 +72,4 @@ MonoBehaviour:
     IsSignalDetected: 0
     SignalDb: 0
     NoiseLevelDb: 0
+  TranscriptText: {fileID: 0}

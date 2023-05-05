@@ -62,6 +62,7 @@ namespace Speechly.SLUClient
         IDecoder decoder = null;
         public TMP_Text TranscriptText;
 
+        KeywordRecognizer recognizer = new KeywordRecognizer("hello iris");
 
         void Start()
         {
@@ -69,6 +70,12 @@ namespace Speechly.SLUClient
             speechlyClient.OnSegmentChange += (segment) =>
             {
                 Debug.Log(segment.ToString());
+
+                if(recognizer.ContainsKeyword(segment.ToString())==true)
+                {
+                    Debug.Log("KEY WORD RECOGNIZED!!!");
+                }
+                
                 TranscriptText.text = segment.ToString(
                   (intent) => "",
                   (words, entityType) => $"<color=#15e8b5>{words}<color=#ffffff>",

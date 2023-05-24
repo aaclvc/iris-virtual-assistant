@@ -7,6 +7,7 @@ using Speechly.Tools;
 using Speechly.Types;
 using Logger = Speechly.Tools.Logger;
 using TMPro;
+using HMDClient;
 
 namespace Speechly.SLUClient
 {
@@ -75,6 +76,7 @@ namespace Speechly.SLUClient
         private Coroutine runSpeechlyCoroutine = null;
         IDecoder decoder = null;
         public TMP_Text TranscriptText;
+        public TMP_Text ChatGptOutput;
 
         //Our Keyword Recognizer
         KeyWordRecognizer recognizer = new KeyWordRecognizer("hello iris");
@@ -120,6 +122,12 @@ namespace Speechly.SLUClient
                   (words, entityType) => $"<color=#15e8b5>{words}<color=#ffffff>",
                   "."
                 );
+                if (segment.isFinal)
+                {
+                    IrisClient irisClient = new IrisClient();
+                    string chatGptResponse = irisClient.PostPayloadToServer(segment.ToString((intent) => "",(words, entityType) => $"<color=#15e8b5>{words}<color=#ffffff>","."));
+                    ChatGptOutput.text = chatGptResponse;
+                }
             };
 
             //TODO: Add OnStop

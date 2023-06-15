@@ -9,6 +9,14 @@ using Logger = Speechly.Tools.Logger;
 using TMPro;
 using HMDClient;
 
+
+using System.Collections.Generic;
+using System.Text;
+using UnityEngine.Networking;
+using System.Net.Http;
+
+using Meta.WitAi.TTS.Utilities;
+
 namespace Speechly.SLUClient
 {
 
@@ -85,6 +93,54 @@ namespace Speechly.SLUClient
         Coroutine runStateHandler = null;
 
 
+        // Server data
+        string urlChatGpt = "https://v43771.1blu.de/api/chatgpt";
+
+        // Text to speech
+        public TTSSpeaker speaker;
+
+        string authenticate(string username = "PXnCOz2cYHvaeIZu8jxc", string password = "TCEGOwL9GIzzMLDEVbNuyIsdNd42vD")
+        {
+            string auth = username + ":" + password;
+            auth = System.Convert.ToBase64String(System.Text.Encoding.GetEncoding("ISO-8859-1").GetBytes(auth));
+            auth = "Basic " + auth;
+            return auth;
+        }
+
+        public void SendStringToServer(string data)
+        {
+            StartCoroutine(PostData(data));
+        }
+
+        IEnumerator PostData(string data)
+        {
+            // Create a form to hold the data to be sent
+            WWWForm form = new WWWForm();
+            form.AddField("chatGPT", data); // Add the string data to the form
+            
+            Debug.Log("The string that is send is: " + data);
+            // Create a UnityWebRequest object to make the POST request
+            using (UnityWebRequest www = UnityWebRequest.Post(urlChatGpt, form))
+            {
+                string authorization = authenticate();
+                www.SetRequestHeader("AUTHORIZATION", authorization);
+                yield return www.SendWebRequest();
+                if (www.result != UnityWebRequest.Result.Success)
+                {
+                    Debug.LogError("POST request failed. Error: " + www.error);
+                }
+                else
+                {
+                    string responseString = www.downloadHandler.text;
+                    ChatGptOutput.text = responseString;
+                    speaker.Speak(responseString);
+                    Debug.Log("POST request successful!");
+
+                }
+            }
+        }
+
+
         void Start()
         {
             SpeechlyClient speechlyClient = MicToSpeechly.Instance.SpeechlyClient;
@@ -124,9 +180,13 @@ namespace Speechly.SLUClient
                 );
                 if (segment.isFinal)
                 {
-                    IrisClient irisClient = new IrisClient();
-                    string chatGptResponse = irisClient.PostPayloadToServer(segment.ToString((intent) => "",(words, entityType) => $"<color=#15e8b5>{words}<color=#ffffff>","."));
-                    ChatGptOutput.text = chatGptResponse;
+                    Debug.Log("G");
+                    //IrisClient irisClient = new IrisClient();
+                    SendStringToServer(segment.ToString((intent) => "", (words, entityType) => $"<color=#15e8b5>{words}<color=#ffffff>", "."));
+                    //string chatGptResponse = IrisClient.SendStringToServerAsync(segment.ToString((intent) => "", (words, entityType) => $"<color=#15e8b5>{words}<color=#ffffff>", "."));
+                    //string chatGptResponse = await IrisClient.SendStringToServerAsync(segment.ToString((intent) => "", (words, entityType) => $"<color=#15e8b5>{words}<color=#ffffff>", "."));
+                    //ChatGptOutput.text = chatGptResponse;
+                    //SendStringToServer(segment.ToString((intent) => "", (words, entityType) => $"<color=#15e8b5>{words}<color=#ffffff>", "."));
                 }
             };
 
@@ -134,6 +194,7 @@ namespace Speechly.SLUClient
             
             //TODO: Add OnStopStream
         }
+
 
         private void Awake()
         {

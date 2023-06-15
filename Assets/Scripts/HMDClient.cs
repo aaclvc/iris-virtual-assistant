@@ -5,9 +5,15 @@ using UnityEngine.Networking;
 
 using System;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
+
+using System.Text;
+
+
+
 
 //using System.Text.Json;
 //using UnityEngine.JSONSerializeModule;
@@ -65,13 +71,19 @@ namespace HMDClient
 
     {
         // endpoints on server
-        string urlImages = "http://v43771.1blu.de:1235/api/images";
-        string urlChatGpt = "http://v43771.1blu.de:1235/api/chatgpt";
-        string urlTruncateDb = "http://v43771.1blu.de:1235/api/db/truncate";
-
+        string urlImages = "https://v43771.1blu.de/api/images";
+        static string urlChatGpt = "https://v43771.1blu.de/api/chatgpt";
+        string urlTruncateDb = "https://v43771.1blu.de/api/db/truncate";
 
         // Sends the given payload to the IRIS server 
 
+        static string authenticate(string username = "PXnCOz2cYHvaeIZu8jxc", string password = "TCEGOwL9GIzzMLDEVbNuyIsdNd42vD")
+        {
+            string auth = username + ":" + password;
+            auth = System.Convert.ToBase64String(System.Text.Encoding.GetEncoding("ISO-8859-1").GetBytes(auth));
+            auth = "Basic " + auth;
+            return auth;
+        }
         public void GetFromChatgpt()
         {
             Debug.Log("GET From ChatGPT");
@@ -84,11 +96,75 @@ namespace HMDClient
             }
         }
 
-        
-        public string PostPayloadToServer(string payload)
+
+        public static async Task<string> SendStringToServerAsync(string data)
         {
-            Dictionary<string, string> responseDict = new Dictionary<string, string>();
+            using (HttpClient client = new HttpClient())
+            {
+                // Convert the username and password to Base64
+                string username = "PXnCOz2cYHvaeIZu8jxc";
+                string password = "TCEGOwL9GIzzMLDEVbNuyIsdNd42vD";
+                string auth = Convert.ToBase64String(Encoding.ASCII.GetBytes(username + ":" + password));
+                //string auth = authenticate();
+
+
+                // Set the Authorization header with Basic authentication
+                client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", auth);
+                var content = new StringContent(data, Encoding.UTF8, "text/plain");
+                var requestMessage = new HttpRequestMessage(HttpMethod.Post, urlChatGpt);
+                requestMessage.Content = content;
+                requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Basic", auth);
+
+
+
+                
+
+                try
+                {
+                    var result = await client.SendAsync(requestMessage);
+                    //HttpResponseMessage response = await client.PostAsync(urlChatGpt, content);
+                    //response.EnsureSuccessStatusCode();
+                    result.EnsureSuccessStatusCode();
+                    string responseContent = await result.Content.ReadAsStringAsync();
+                    return responseContent;
+
+
+                    //string responseContent = await response.Content.ReadAsStringAsync();
+                    //return responseContent;
+                    //return null;
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Error: " + e.Message);
+                    return null;
+                }
+            }
+        }
+
+        public static async Task Main(string data)
+        {
+            string stringData = data; // The string to be sent
+
+            string response = await SendStringToServerAsync(stringData);
+
+            if (response != null)
+            {
+                Console.WriteLine("Response from server: " + response);
+            }
+        }
+    
+
+
+
+
+
+
+
+    public string PostPayloadToServer(string payload)
+        {
+            //Dictionary<string, string> responseDict = new Dictionary<string, string>();
             Debug.Log("POST To ChatGPT");
+
             using (var client = new HttpClient())
             {
                 HttpResponseMessage response;
@@ -99,11 +175,11 @@ namespace HMDClient
                 response = client.PostAsync(endpoint, contentData).Result;
                 string responseBody = response.Content.ReadAsStringAsync().Result;
 
-               
-                
+
+
 
                 Debug.Log("--------------RESPONSE BODY TEST-----------------------------");
-               
+
                 Debug.Log(responseBody);
 
 
@@ -115,10 +191,7 @@ namespace HMDClient
                 */
 
                 return responseBody;
-          
-                
             }
         }
-
     }
 }

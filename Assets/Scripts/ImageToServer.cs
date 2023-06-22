@@ -11,8 +11,6 @@ public class ImageLoader : MonoBehaviour
 {
     public string imageUrl = "https://192.168.1.122:8080/shot.jpg";
     
-    //public string imageUrl = "https://10.239.87.196:8080/shot.jpg";
-    //string imageUrl = "https://10.239.87.194:8080/shot.jpg";
     //public string imageUrlUni = "";
 
     public RawImage rawImage;

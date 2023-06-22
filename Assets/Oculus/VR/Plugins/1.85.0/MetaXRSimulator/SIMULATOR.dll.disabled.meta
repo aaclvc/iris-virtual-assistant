@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: d915c8e484bfc474ca38b17f97829b92
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 82022
+  packageName: Oculus Integration
+  packageVersion: 53.1
+  assetPath: Assets/Oculus/VR/Plugins/1.85.0/MetaXRSimulator/SIMULATOR.dll.disabled
+  uploadId: 585449

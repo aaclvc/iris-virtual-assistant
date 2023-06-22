@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 8ea9d6ba2a8eb744289d172a8e76d151
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 82022
+  packageName: Oculus Integration
+  packageVersion: 53.1
+  assetPath: Assets/Oculus/VR/Plugins/1.85.0/AndroidOpenXR/OVRPlugin.aar.disabled
+  uploadId: 585449

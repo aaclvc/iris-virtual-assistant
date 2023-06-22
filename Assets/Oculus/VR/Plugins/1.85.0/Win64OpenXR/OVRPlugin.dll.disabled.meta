@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 4e2200755a773b7489e76bddd3d38647
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 82022
+  packageName: Oculus Integration
+  packageVersion: 53.1
+  assetPath: Assets/Oculus/VR/Plugins/1.85.0/Win64OpenXR/OVRPlugin.dll.disabled
+  uploadId: 585449
